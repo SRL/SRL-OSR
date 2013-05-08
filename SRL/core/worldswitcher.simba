@@ -566,7 +566,7 @@ begin
     if CurrentWorldLS <> W then
       Writeln('World ' + IntToStr(W) + ' was full. Trying next world.');
   until CurrentWorldLS = W;
-  Writeln('Successully switched to world ' + IntToStr(W) + ' .');
+  Writeln('Successully switched to world ' + IntToStr(W) + '.');
   if Length(Players[CurrentPlayer].WorldInfo) > 0 then
     Players[CurrentPlayer].WorldInfo[0]:=W;
   LoginPlayer;
