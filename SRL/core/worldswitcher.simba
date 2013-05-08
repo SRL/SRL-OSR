@@ -529,9 +529,9 @@ ChangeToNextWorld
 
 ..  code-block:: pascal
 
-    function ChangeToNextWorld(W: Integer): Boolean;
+    function ChangeToNextWorld(W: Integer): Integer;
 
-    Changes to the next (non-full) world after W. Returns True when successful.
+    Changes to the next (non-full) world after W, then returns the world the player logs into.
 
 ..note::
 
@@ -541,21 +541,34 @@ Example:
 
 ..  code-block:: pascal
 
-    ChangeToNextWorld(301);  Would logout a player, then log them into the next non-full world (possibly 302), and return True.
+    ChangeToNextWorld(301);
+    Logs out player, logs them into the next non-full world, then returns the world they logged into.
+
+    Common Usage:
+
+    var
+      world:Integer;
+
+    world := CurrentWorld;
+    ...
+    ...
+    ...
+    world := ChangeToNextWorld(world);
 
 *)
-function ChangeToNextWorld(W: Integer): Boolean;
+function ChangeToNextWorld(W: Integer): Integer;
 begin
   if LoggedIn then
     WaitFunc(@Logout, 500, 5000);
   repeat
     W := NextWorld(W);
-    Result := SelectWorld(W);
-    if not Result then
+    SelectWorld(W);
+    if CurrentWorldLS <> W then
       Writeln('World ' + IntToStr(W) + ' was full. Trying next world.');
-  until Result;
+  until CurrentWorldLS = W;
   Writeln('Successully switched to world ' + IntToStr(W) + ' .');
   if Length(Players[CurrentPlayer].WorldInfo) > 0 then
     Players[CurrentPlayer].WorldInfo[0]:=W;
   LoginPlayer;
+  Result := W;
 end;
