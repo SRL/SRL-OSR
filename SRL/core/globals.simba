@@ -259,15 +259,10 @@ var
 { vars For Smart}
 {$IFDEF SMART}
 var
-  {$IFDEF SIMBAMAJOR980}
-    Smart_Server: Integer;
-    Smart_Members, Smart_Signed, Smart_SuperDetail: Boolean;
-  {$ELSE}
-    Smart_ForceNew: Boolean;
-    Smart_FixSpeed: Boolean;
-    Smart_CurrentClient: Integer;
-    Smart_World: Integer;
-  {$ENDIF}
+  Smart_ForceNew: Boolean;
+  Smart_World: Integer;
+  smartCurrentTarget: integer;
+  smartCurrentPID: integer;
 {$ENDIF}
 
 { var WarnSensitivity: Integer
@@ -638,18 +633,12 @@ Example:
 
 *)
 Function srl_IsPoisoned: Boolean;
-var box : TBox;
+var
+  box: TBox;
 begin                                 //19200
   box := IntToBox(233,147,267,179);
   with box do
-  begin
-
-     Result :=
-     (CountColorTolerance(49152,x1,y1,x2,y2,59) > 30)
-     AND
-    (CountColorTolerance(19200,x1,y1,x2,y2,59) > 150);
-
-  end;
+    result := (CountColorTolerance(49152,x1,y1,x2,y2,59) > 30) and (CountColorTolerance(19200,x1,y1,x2,y2,59) > 150);
 end;
 
 procedure Proc_WorldSwitcherEnabled;

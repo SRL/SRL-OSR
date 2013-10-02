@@ -21,27 +21,16 @@ var
 *}
 procedure SMART_SetupDebug;
 begin
-  SmartSetDebug(True);
+  SmartSetDebug(smartCurrentTarget, True);
   SMART_Canvas := TMufasaBitmap.Create;
-  SMART_Canvas.SetPersistentMemory(SmartDebugArray, 765, 505);
+  SMART_Canvas.setSize(765, 503);
+
+  SetPersistentMemoryBitmap(SMART_Canvas.index, SmartDebugArray(smartCurrentTarget), 765, 503);
+
+  SMART_Canvas.FastDrawClear(0); //clear it in case of previous usage
   SMART_DebugSetup := true;
   if not SMART_Reset then
     AddOnTerminate('SMART_FreeDebug');
-end;
-
-{*
-  Author: Brandon.
-
-  Creates an array of specific colours for use with FastSetPixels.
-*}
-Function ColorsFromTPA(TPA: TPointArray; Color: Integer): TIntegerArray;
-var
-  I, L: Integer;
-begin
-  SetLength(Result, Length(TPA));
-  L:= High(TPA);
-  For I:= 0 To L Do
-    Result[I]:= Color;
 end;
 
 {*
@@ -73,8 +62,7 @@ begin
   if (not SMART_DebugSetup) then
     SMART_SetupDebug;
 
-  //FIXME: SMART_ClearCanvasArea -> SMART_CANVAS.FastDrawClear, When bug is fixed.
-  SMART_ClearCanvasArea(IntToBox(0, 0, SMART_Canvas.Width - 5, SMART_Canvas.Height - 5));
+  SMART_Canvas.FastDrawClear(0);
 
 {$ELSE}
 begin
@@ -332,9 +320,6 @@ end;
   clear the SMART canvas if set to do so (Clear).
 *}
 procedure SMART_DrawLine(Clear: Boolean; TP1, TP2: TPoint; Color: TColor);
-var
-  TempMufasa: TMufasaBitmap;
-  TempTBitmap: TBitmap;
 begin
 {$IFDEF SMART}
   if (not SMART_DebugSetup) then
@@ -343,23 +328,7 @@ begin
   if (Clear) then
     SMART_ClearCanvas;
 
-  TempTBitmap := TBitmap.Create;
-  TempTBitmap.Width := Max(1, iAbs(TP2.X - TP1.X));
-  TempTBitmap.Height := Max(1, iAbs(TP2.Y - TP1.Y));
-  TempTBitmap.Canvas.Pen.COLOR := Color;
-
-  TempTBitmap.Canvas.moveto(0, 0);
-  TempTBitmap.Canvas.LineTo(iAbs(TP2.X - TP1.X), iAbs(TP2.Y - TP1.Y));
-
-  TempMufasa := TMufasaBitmap.Create;
-  TempMufasa.LoadFromTBitmap(TempTBitmap);
-  if (SMART_Canvas.TransparentColorSet) then
-    TempMufasa.SetTransparentColor(SMART_Canvas.GetTransparentColor);
-
-  FastDrawTransparent(Min(TP1.X, TP2.X), Min(TP1.Y, TP2.Y), TempMufasa.Index, SMART_Canvas.Index);
-
-  TempMufasa.Free;
-  TempTBitmap.Free;
+  SMART_Canvas.lineTo(tp1, tp2, color);
 {$ENDIF}
 end;
 
@@ -549,8 +518,7 @@ begin
   try
     if (SMART_DebugSetup) then
     begin
-      SMART_ClearCanvas;
-      SMART_Canvas.ResetPersistentMemory;
+      ResetPersistentMemoryBitmap(SMART_Canvas.Index);
       SMART_Canvas.Free;
       SMART_DebugSetup := False;
       SMART_Reset := True;
