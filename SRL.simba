@@ -21,9 +21,6 @@
 //--        Low Level SCAR Math, Mouse Movement and Color routines.         --//
 //----------------------------------------------------------------------------//
 
-// For development:
-//{$DEFINE CompileSRL}
-
 {$DEFINE SRL5}
 
 {$IFDEF PascalScript}
@@ -200,18 +197,6 @@ begin
 
   SetupGauss;
   Proc_WorldSwitcherEnabled;
-  if Length(Players) > 0 then
-  SetScreenName(Players[CurrentPlayer].Nick);
+  if (Length(Players) > 0) then
+    SetScreenName(Players[CurrentPlayer].Nick);
 end;
-
-{$ifdef CompileSRL}
-begin
-  SetupSRL;
-end.
-{$endif}
-
-{$ifdef LAPE}
-begin
-  SetupSRL;
-end.
-{$endif}
