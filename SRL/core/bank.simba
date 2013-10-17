@@ -933,7 +933,7 @@ Withdraws Amount at Column/Row.
 .. note::
 
     Author: Starblaster100, Town, Wizzup? and Narcle, small fixes by r!ch!e & EvilChicken!
-    Last Modified: Ashaman88 -07
+    Last Modified: Flight [17-10-2013]
 
 Example:
 
@@ -971,20 +971,25 @@ begin
     Exit;
   end;
 
-  if (Amount = 0) then
+  if (Amount = -1) then
   begin
-    if (WaitOptionMultiEx(['Withdraw All', 'w A','All','ll '], 'All', Nothing, 600)) then
-      Result := ChooseOptionMulti(['Withdraw All', 'w A','All','ll ']);
+    if (WaitOptionMultiEx(['Withdraw-All-but', 'l-b'], 'All', Nothing, 300)) then
+      Result := ChooseOptionMulti(['Withdraw-All-but', 'l-b']);
   end else
-    if (WaitOptionMultiEx(['Withdraw-' + IntToStr(Amount) + ' ', 'w-' + IntToStr(Amount) + ' '], 'All', Nothing, 300)) then
-      Result := ChooseOptionMulti(['Withdraw-' + IntToStr(Amount) + ' ', 'w-' + IntToStr(Amount) + ' ']);
+    if (Amount = 0) then
+    begin
+      if (WaitOptionMultiEx(['Withdraw-All', 'w-A'], 'All', Nothing, 300)) then
+        Result := ChooseOptionMulti(['Withdraw-All', 'w-A']);
+    end else
+      if (WaitOptionMultiEx(['Withdraw-' + IntToStr(Amount) + ' ', 'w-' + IntToStr(Amount) + ' '], 'All', Nothing, 300)) then
+        Result := ChooseOptionMulti(['Withdraw-' + IntToStr(Amount) + ' ', 'w-' + IntToStr(Amount) + ' ']);
 
   if (not (Result)) and (Amount > 0) then
   begin
     if (not OptionsExist(['Withdraw', 'ithdraw', 'draw'], False)) then
       MouseBox(BBox.X1 + 5, BBox.Y1 + 5, BBox.X2 - 5, BBox.Y2 - 5, mouse_right);
 
-    if WaitOptionMulti(['Withdraw X', 'w X', 'X'], 500) then
+    if WaitOptionMulti(['Withdraw-X', 'w-X', 'X'], 500) then
     begin
        X := GetSystemTime + 10000;
        while (X >= GetSystemTime) and (not (InRange(CountColor(0, 211, 394, 308, 411), 200, 300))) do
@@ -1116,7 +1121,7 @@ begin
   end else
   begin
     Index := 0;
-    SRL_Warn('WithdrawItem', 'Could not Find ' + IdentType + ' in Bank. [Uptext: ' + UpText + ']', Warn_AllVersions);
+    SRL_Warn('WithdrawItem', 'Could not find ' + IdentType + ' in bank.', Warn_AllVersions);
   end;
 end;
 
