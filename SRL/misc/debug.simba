@@ -162,13 +162,13 @@ begin
     B := getTPABounds(aPoints[i]);
     for x := B.x1 to B.x2 do
     begin
-      FastSetPixel(ClientBMP, x, b.y1, selColor)
-      FastSetPixel(ClientBMP, x, B.y2, selColor)
+      FastSetPixel(ClientBMP, x, b.y1, selColor);
+      FastSetPixel(ClientBMP, x, B.y2, selColor);
     end;
     for y := B.y1 to B.y2 do
     begin
-      FastSetPixel(ClientBMP, B.x1, y, selColor)
-      FastSetPixel(ClientBMP, B.x2, y, selColor)
+      FastSetPixel(ClientBMP, B.x1, y, selColor);
+      FastSetPixel(ClientBMP, B.x2, y, selColor);
     end;
 
     BMP := BitmapFromText(inttostr(i),StatChars);
