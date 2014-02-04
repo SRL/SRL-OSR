@@ -1073,7 +1073,7 @@ Example:
 function GetXP(skill: variant): integer;
 var
   MouseTB,b: TBox;
-  rc: TPoint;
+  rc,mpos: TPoint;
   tpa: TPointArray;
 begin
   result := -1;
@@ -1086,7 +1086,10 @@ begin
   if (MouseTB.X1 < 1) then
     exit;
 
-  MMouse(MouseTB.X1+3,MouseTB.Y1+3, 55, 25);
+  GetMousePos(mpos.x,mpos.y);
+  if not PointInBox(mpos,MouseTB) then
+    mouseBox(MouseTB.x1,MouseTB.y1,MouseTB.x2,MouseTB.y2,mouse_move);
+
   wait(400 + random(200));
 
   if (WaitFindColors(tpa, 10551295, MIX1, MIY1, MIX2, MIY2, 0, 3000)) then
@@ -1121,7 +1124,7 @@ Example:
 function XPTillNextLevel(Skill: Variant): Integer;
 var
   MouseTB,b: TBox;
-  rc: TPoint;
+  rc,mpos: TPoint;
   tpa: TPointArray;
   CXP,XPNLA: Integer;
 begin
@@ -1135,7 +1138,10 @@ begin
   if (MouseTB.X1 < 1) then
     exit;
 
-  MMouse(MouseTB.X1+3,MouseTB.Y1+3, 55, 25);
+  GetMousePos(mpos.x,mpos.y);
+  if not PointInBox(mpos,MouseTB) then
+    mouseBox(MouseTB.x1,MouseTB.y1,MouseTB.x2,MouseTB.y2,mouse_move);
+
   wait(400 + random(200));
 
   if (WaitFindColors(tpa, 10551295, MIX1, MIY1, MIX2, MIY2, 0, 3000)) then
