@@ -38,7 +38,7 @@ begin
   Result := -1;
   FindColors(TPA, 920735, 545, 4, 576, 36); //Searches for red of South, East, and West points on compass.
   RAaSTPA(TPA, 7); // the point are small clusters of pixels, so by doing this, we are left with four points: the three cardinal points, and the center of the red arrow on the compass.
-  SortTPAFrom(TPA, Point(560, 20)); //Sort from center of the compass, so the first point in the array is the point that is the center of the red arrow.
+  SortTPAFrom(TPA, Point(561, 20)); //Sort from center of the compass, so the first point in the array is the point that is the center of the red arrow.
   InvertTPA(TPA); //Invert the array so that the arrow's center point is now at the end of the array and out of the way.
   if (Length(TPA) <> 4) then //If we don't have four points, something has gone wrong.
     Exit;
@@ -60,7 +60,7 @@ begin
       end;
     end;
   end;
-  Result := FixRad((ArcTan2(-(SouthPoint.y - 20), SouthPoint.x - 560) + MATH_PIOVER2));
+  Result := FixRad((ArcTan2(-(SouthPoint.y - 20), SouthPoint.x - 561) + MATH_PIOVER2));
 end;
 
 (*
@@ -83,8 +83,40 @@ Example:
 
 *)
 function rs_GetCompassAngleDegrees(): Extended;
+var
+  Angles: Array [0..2] of Extended;
+  Vectors: Array [0..2] of TVector;
+  I: Integer;
+  SouthPoint: TPoint;
+  TPA: TPointArray;
 begin
-  Result := Degrees(FixD(rs_GetCompassAngleRadians()));
+  Result := -1;
+  FindColors(TPA, 920735, 545, 4, 576, 36); //Searches for red of South, East, and West points on compass.
+  RAaSTPA(TPA, 7); // the point are small clusters of pixels, so by doing this, we are left with four points: the three cardinal points, and the center of the red arrow on the compass.
+  SortTPAFrom(TPA, Point(561, 20)); //Sort from center of the compass, so the first point in the array is the point that is the center of the red arrow.
+  InvertTPA(TPA); //Invert the array so that the arrow's center point is now at the end of the array and out of the way.
+  if (Length(TPA) <> 4) then //If we don't have four points, something has gone wrong.
+    Exit;
+  for I := 0 to 2 do //Creates normalized vectors from center of compass to three cardinal points.
+    Vectors[i] := CreateVector(Point(561, 20), TPA[i], True); //Creates normalized vectors from center of compass out to the cardinal points.
+  Angles[0] := AngleBetween(Vectors[0], Vectors[1]); //Stores the angle between vectors 0 and 1 in Angles[0].
+  Angles[1] := AngleBetween(Vectors[0], Vectors[2]); //Stores the angle between vectors 0 and 2 in Angles[1].
+  Angles[2] := AngleBetween(Vectors[1], Vectors[2]); //Stores the angle between vectors 1 and 2 in Angles[2].
+  for I := 0 to 2 do //This loop determines which point is the southern point of the compass.
+  begin
+    if (Angles[i] > pi) then //If the angle is greater than pi radians (180 degrees),
+      Angles[i] := MATH_2PI - Angles[i]; //We subtract it from 2pi radians (360 degrees) to get something like a reference angle.
+    if (Angles[i] >= 2) then //If the angle is greater than 2 radians, then we know that the two vectors this angle is between
+    begin //are the East and West point vectors.
+      case I of //The vector that is not those two is the South point vector.
+        0: SouthPoint := TPA[2];
+        1: SouthPoint := TPA[1];
+        2: SouthPoint := TPA[0];
+      end;
+    end;
+  end;
+  Result := FixRad((ArcTan2(-(SouthPoint.y - 20), SouthPoint.x - 561) + MATH_PIOVER2));
+  Result := Degrees(FixD(Result));
 end;
 
 
