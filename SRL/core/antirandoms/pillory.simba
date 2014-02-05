@@ -40,7 +40,7 @@ end;
  *)
 function PL_ClickCage: Boolean;
 var
-  t: Integer;
+  t, x, y: Integer;
 begin
   Result := False;
 
@@ -53,7 +53,14 @@ begin
   if (not Result) then
   begin
     repeat
-      MMouse(243,143,70,65);
+      x:= MSCX;
+      y:= MSCY;
+      if (not(IsUpTextMultiCustom(['Unlock','lock','Cage','age']))) then
+        if FindColorSpiralTolerance(x, y, 9738912, MSX1, MSY1, MSX2, MSY2, 19) or FindColorSpiralTolerance(x, y, 1118484, MSX1, MSY1, MSX2, MSY2, 19) then
+        begin
+          MMouse(x,y,4,4);
+        end else
+          MMouse(243,143,80,65);
 
       Wait(RandomRange(90, 270));
 
@@ -67,8 +74,9 @@ begin
           Result := True;
         end else
           PL_Message('[PL_ClickCage] Failed to open Lock Screen');
-      end;
-    until (Result) or (GetSystemTime - t > 20000);
+      end else
+        MMouse(243,143,80,65);
+    until (Result) or (GetSystemTime - t > 38000);
   end;
 end;
 
@@ -108,10 +116,12 @@ begin
   SetColorToleranceSpeed(2);
   SetToleranceSpeed2Modifiers(0.21, 2.01);
   MarkTime(CountTime);
+  Count:= 100;
   repeat
     CNum := CountColorTolerance(1057067, 60, 65, 150, 150, 10);
     if (CNum > Count) then
       Count := CNum;
+      wait(50 + random(50));
   until (TimeFromMark(CountTime) > WatchTime);
   if (Count > 800) and (Count < 1000) then Result := 'square';
   if (Count > 570) and (Count < 799) then Result := 'triangle';
@@ -136,7 +146,7 @@ begin
 
   MarkTime(WatchTime);
   Result[0] := '';
-  Count := 0; CNum := 0;
+  Count := 100; CNum := 0;
   repeat
     CNum := CountColorTolerance(1516846, 180, 170, 235, 260, 7);
 
@@ -149,6 +159,7 @@ begin
 
     if (CNum > Count) then
       Count := CNum;
+    wait(50 + random(50));
 
   until (not (Result[0] = '')) or (TimeFromMark(WatchTime) > 10000);
 
@@ -164,7 +175,7 @@ begin
 
   MarkTime(WatchTime);
   Result[1] := '';
-  Count := 0; CNum := 0;
+  Count := 100; CNum := 0;
   repeat
     CNum := CountColorTolerance(1516846, 265, 170, 345, 260, 7);
 
@@ -177,6 +188,7 @@ begin
 
     if (CNum > Count) then
       Count := CNum;
+    wait(50 + random(50));
 
   until (not (Result[1] = '')) or (TimeFromMark(WatchTime) > 10000);
 
@@ -192,7 +204,7 @@ begin
 
   MarkTime(WatchTime);
   Result[2] := '';
-  Count := 0; CNum := 0;
+  Count := 100; CNum := 0;
   repeat
     CNum := CountColorTolerance(1516846, 365, 170, 430, 260, 7);
 
@@ -205,6 +217,7 @@ begin
 
     if (CNum > Count) then
       Count := CNum;
+    wait(50 + random(50));
 
   until (not (Result[2] = '')) or (TimeFromMark(WatchTime) > 10000);
 
@@ -232,7 +245,7 @@ end;
 function PL_Solve: Boolean;
 var
   i, t, keysolves, tmpCTS: Integer;
-  tmpHM, tmpSM: Extended;
+  tmpHM, tmpSM, Deg: Extended;
   lock: String;
   keys: TStringArray;
 begin
@@ -246,7 +259,10 @@ begin
 
   t := GetSystemTime;
 
-  if (not PL_ClickCage) then Exit;
+ Deg := RS_GetCompassAngleDegrees;
+ Wait(100 + random(50));
+ MakeCompass('N');
+  //if (not PL_ClickCage) then Exit;
 
   repeat
 
@@ -287,6 +303,8 @@ begin
         (TabExists(TAB_OPTIONS));
 
   until (Result) or (GetSystemTime - t > 120000);
+
+  if (Result) then MakeCompass(Deg);
 
   SetColorToleranceSpeed(tmpCTS);
   SetToleranceSpeed2Modifiers(tmpHM, tmpSM);

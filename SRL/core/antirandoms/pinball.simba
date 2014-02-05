@@ -188,16 +188,20 @@ var
   x, y, t, i: integer;
   tpa, tpa_Exit: TPointArray;
   ATPA: T2DPointArray;
+  Deg: Extended;
 begin
 
  if (not loggedIn()) then
    exit;
  addToSRLLog('PB_Exit: Exiting cave');
- t := (getSystemTime + 20000);
  SetAngle(SRL_ANGLE_HIGH);
+ Deg := RS_GetCompassAngleDegrees;
+ Wait(100 + random(50));
+ MakeCompass('N');
+ t := (getSystemTime + 25000);
  repeat
    // the green path color
-   if (findColorsTolerance(tpa, 4544055, MSX1, MMCY+10, MSX2, MSY2, 15)) then
+   if (findColorsTolerance(tpa, 4544055, MSX1, MMCY+10, MSX2, MSY2, 35)) then
    begin
      if (length(tpa) > 0) then
      begin
@@ -215,7 +219,7 @@ begin
        end;
      end;
    end;
-   if (findColorsTolerance(tpa, 5603685, MSX1, MMCY, MSX2, MSY2, 15)) then
+   if (findColorsTolerance(tpa, 5734757, MSX1, MMCY, MSX2, MSY2, 35)) then
      if (length(tpa) > 0) then
      begin
        sortTPAFrom(tpa, point(MSCX, MSY2)); // center of the bottom of the MS
@@ -243,8 +247,11 @@ begin
    wait(2000 + random(300));
  until ((getSystemTime > t) or (result));
  if (result) then
+ begin
+   Wait(100 + random(500));
+   MakeCompass(Deg);
    addToSRLLog('PB_Exit: Clicked exit cave')
- else
+ end else
  begin
    addToSRLLog('PB_Exit: Took to long to find exit... Looking for backup');
    t := (getSystemTime + 20000);

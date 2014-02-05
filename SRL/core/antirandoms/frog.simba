@@ -9,7 +9,8 @@ detection methods.
 *)
 
 var
-  O_MouseSpeed, FROG_ISLAND_DTM, FROG_ISLAND_DTM_BACKUP, FROG_CROWN_DTM: Integer;
+  O_MouseSpeed, FROG_ISLAND_DTM, FROG_ISLAND_DTM_BACKUP, FROG_CROWN_BMP, DTM_Royal_Frog: Integer;
+  Deg : Extended;
 
 const
   FROG_YELLOW             = 7986172;
@@ -22,6 +23,54 @@ const
 //function Frog_Speakto: boolean; forward;
 function Frog_IsTalkingTo: boolean; forward;
 function Frog_FindFrog: boolean; forward;
+
+(*
+DoConversationEx
+~~~~~~~~~~~~~~
+
+.. code-block:: pascal
+
+    function DoConversationEx(resultText: TStringArray; clickresult: boolean): boolean;
+
+Goes through the initial dialog of a random.  Will keep clicking to continue
+until any of the conversation's 'resultText' is found.  Will click to continue when
+any 'resultText' is found if 'clickresult' is set to true.  Set 'resultText' to ['']
+to click continue until conversation is over.
+
+.. note::
+
+    Author: Coh3n, Flight
+    Last Modified: Jun. 15th, 2013 by Flight
+
+Example:
+
+.. code-block:: pascal
+
+    if (DoConversationEx(['thank','nk you'], true)) then
+      writeln('Finished conversation');
+*)
+function DoConversationEx(resultText: TStringArray): boolean;
+var
+  t,i: integer;
+begin
+  while (t < 25) do // max of 25 "click to continue's"
+  begin
+    if (length(resultText) > 0) then
+      for i:=0 to high(resultText) do
+        if (findNPCChatText(resultText[i], nothing)) then
+        begin
+          result := true;
+          exit;
+        end;
+
+    // break if there's no more conversation
+    if (not clickContinue(true)) then
+      break;
+
+    wait(100 + random(200));
+    inc(t);
+  end;
+end;
 
 (**
  * Author: Justin
@@ -67,7 +116,8 @@ procedure Frog_Set_DTMS;
 begin
   FROG_ISLAND_DTM := DTMFromString('mrAAAAHic42BgYDjJxsBwA4qvA/EpID4MxLuAeBMQtwDV9ABxNRAXA3EuEBcBcQkQ1wJxaJAdg3lxAk4sB1SDDzMSwDAAAMr5E3M=');
   FROG_ISLAND_DTM_BACKUP := DTMFromString('maQEAAHicE2RgYLjGxMDwGIjvMEHY54H4NBSfg+KrQHwTqu4BED8H4idAfAmqfgbQnIlA3AvFE4B4CgNEfB4QLwLipVA8H8qfDZUHqV8JxIGeNgxmRfFw7ONiARYD4RBvWzAGsf3dLVHUIWNWoDmUYkYqYAwAAGpfKPw=');
-  FROG_CROWN_DTM := DTMFromString('mggAAAHicY2NgYNBkZGDQAGItINZDwneBcjeB+BoQXwfiWwwQsUI+doZjkjwMG9u4GN5v42O4tICHIZeHlUEEKIcNM+LAEAAAEgENCw==');
+  FROG_CROWN_BMP := BitmapFromString(1, 3, 'meJyTOfnD5NxvmaOfARoQBa8=');
+  DTM_Royal_Frog := DTMFromString('mbQAAAHicY2VgYLgDxLeB+CYQ34OyeRgZGDgZIbQAEPMD8cpOYYbfZ1QZDs4RYziuKcbw+5wxgxxQLTpmxoLBAAB7VQzf');
 end;
 
 (**
@@ -78,7 +128,8 @@ procedure Frog_Free_DTMS;
 begin
   FreeDTM(FROG_ISLAND_DTM);
   FreeDTM(Frog_ISLAND_DTM_BACKUP);
-  FreeDTM(FROG_CROWN_DTM);
+  FreeBitmap(FROG_CROWN_BMP);
+  FreeDTM(DTM_Royal_Frog);
 end;
 
 (**
@@ -89,19 +140,27 @@ end;
 function Frog_WalkCenter: boolean;
 var
   TPA: TPointArray;
-  T, TPAX, TPAY: Integer;
+  T, TPAX, TPAY, sx, sy: Integer;
 begin
   if (not loggedIn()) then
     exit;
+  MakeCompass('N');
   MarkTime(T);
-  if ClickDTMRotatedIn(FROG_ISLAND_DTM, MMX1, MMY1, MMX2, MMY2, - Pi, Pi, Pi / 30, [], mouse_Left) then
+  repeat
+  if findcolortolerance(TPAX,TPAY,5861233, MMX1+random(MMX2-MMX1-2), MMY1+random(MMY2-MMY1-2), MMX2, MMY2, 19) then
+  if (findcolortolerance(sx,sy,FROG_SWAMP, TPAX - 30, TPAY, TPAX - 15, TPAY, 19) and findcolortolerance(sx,sy,FROG_SWAMP, TPAX + 30, TPAY, TPAX + 45, TPAY, 19)) then
   begin
+    Mouse(TPAX, TPAY-4, 4, 2, mouse_Left);
     addToSRLLog('Frog_WalkCenter: Moving to center of cave');
+      wait(600 + Random(120));
     FFlag(0);
     result := true;
     addToSRLLog('Frog_WalkCenter[Main]: result: ' + BoolToStr(result));
-  end
-  else
+    break;
+  end;
+    wait(100+random(50));
+  until(timeFromMark(T) > 6000);
+  if (not(result = true)) then
   begin
     addToSRLLog('Frog_WalkCenter: Unable to find main DTM, Falling back onto backup');
     if (FindColorsTolerance(TPA, FROG_SWAMP, MMX1, MMY1, MMX2, MMY2, 50)) then
@@ -124,7 +183,7 @@ end;
  *)
 function Frog_FindFrog: boolean;
 var
-  T, Attempt, tmpCTS, i, arL: integer;
+  T, Attempt, tmpCTS, i, fx, fy, arL: integer;
   arP: TPointArray;
   ararP: T2DPointArray;
   P: TPoint;
@@ -133,12 +192,42 @@ begin
   Marktime(T);
   tmpCTS := GetColorToleranceSpeed;
   repeat
-    if ClickDTMRotatedIn(FROG_CROWN_DTM, MSX1, MSY1, MSX2, MSY2, - Pi, Pi, Pi / 30, ['rog'], mouse_Left) then
+    if FindDTM(DTM_Royal_Frog, fx, fy, MSx1, MSy1, MSx2, MSy2) then
     begin
-      addToSRLLog('Frog_FindFrog: Found Frog Princess');
-      result := true;
-      addToSRLLog('Frog_FindFrog[Main]: result: ' + BoolToStr(result));
-      exit;
+      MMouse(fx-2, fy-2, 2, 2);
+      if WaitUpTextMulti(['Frog','to Fr'], 300) then
+      begin
+        Writeln('Frog_Solve2: Found royal frog');
+        ClickMouse2(mouse_right);
+        Wait(randomRange(100,250));
+        result := waitOptionMulti(['Talk-to Frog','to Fr','Frog'], 500);
+        if result then
+        begin
+          Writeln('Frog_Solve2: Talking to royal frog...');
+          break
+        end else
+          MouseBox(MCx1, MCy1, MCx2, MCy2, mouse_move);
+      end;
+    end;
+    if not result then
+    begin
+      if FindBitmapToleranceIn(FROG_CROWN_BMP, fx, fy, MSX1, MSY1, MSX2, MSY2, 40)  then
+      begin
+        MMouse(fx, fy, 4, 4);
+        addToSRLLog('Frog_FindFrog: Checking multi uptext');
+        wait(150 + random(100));
+        if (IsUpTextMultiCustom(['Frog', 'Talk', 'rog'])) then
+        begin
+            ClickMouse2(mouse_Right);
+            Result := WaitOptionMulti(['Talk-to', 'alk-t', 'Frog', 'rog'], 800);
+            addToSRLLog('Frog_FindFrog[Backup]: result: ' + BoolToStr(result));
+            wait(600 + Random(120));
+            FFlag(0);
+            if (result) then
+              addToSRLLog('Frog_FindFrog: Found Frog Princess');
+            exit;
+        end else
+          addToSRLLog('Frog_FindFrog: Could not find uptext');
     end else
       begin
         addToSRLLog('Frog_FindFrog: Could not find Frog Princess. Falling onto backup');
@@ -172,9 +261,10 @@ begin
         end else
          addToSRLLog('Frog_FindFrog[Backup]: Unable to find TPA');
       end;
+    end;
     Inc(Attempt);
     addToSRLLog('Frog_FindFrog: Attempt: ' + inttostr(Attempt));
-  until ((Attempt > 3) or (Result));
+  until ((Attempt > 5) or (Result));
   ColorToleranceSpeed(tmpCTS);
   SetColorSpeed2Modifiers(0.2, 0.2);
   exit;
@@ -229,29 +319,91 @@ end;}
  *)
 function Frog_IsTalkingTo: boolean;
 var
-  T, Attempt: integer;
+  T, ft, i, Attempt: integer;
+  responses: TStringArray;
 begin
   addToSRLLog('Frog_IsTalkingTo: Speaking to the Frog Princess');
+  responses := ['very','orry','hange','lrigh','Okay','kay.','I supp','pose so','yeah','Yeah','Sure','ure'];
+  MarkTime(ft);
+  repeat
+    if areTalking then break;
+    wait(100+random(50));
+  until(timeFromMark(ft) > 6000);
+  MarkTime(ft);
+  repeat
+    if DoConversationEx(responses) then
+    begin
+      Writeln('Frog_Solve2: Reached response');
+      for i:=0 to High(responses) do
+        if findTextTPA(0, 5, MCx1, MCy1, MCx2, MCy2, responses[i], CharsNPC07, ClickLeft) then
+        begin
+          Writeln('Frog_Solve2: Chose correct option');
+          ClickToContinue;
+          break;
+        end;
+    end;
+  until(timeFromMark(ft) > 15000);
+
+  MarkTime(ft);
+  repeat
+    if (not(Frog_Detect())) then
+    begin
+      Result := True;
+      Writeln('Frog_Solve2: Successfully solved the Frog random!');
+      break;
+    end;
+      Wait(100 + Random(50));
+  until(timeFromMark(ft) > 10000);
+
+  if not result then
+  begin
   repeat
     Result := FindNPCChatText('Hmph. Have you come to apologize for ignoring me?', Nothing);
-    if Result then
+    if (not(result)) then result:= FindNPCChatText('change', Nothing);
+    if (Result or (Attempt > 6)) then
     begin
-      addToSRLLog('Frog_IsTalkingTo: Continuing to chat to Frog Princess');
+      addToSRLLog('Frog_IsTalkingTo[backup]: Continuing to chat to Frog Princess');
       Wait(1000 + Random(500));
       DoConversation('', true);
-      Result := true;
-      addToSRLLog('Frog_IsTalkingTo: result: ' + BoolToStr(result));
+      Wait(1100 + Random(500));
+      Mouse(137, 399, 252, 7, True);
+      Wait(1100 + Random(500));
+      Mouse(153, 449, 130, 5, True);
+      Wait(1100 + Random(500));
+      Mouse(243, 450, 130, 4, True);
+      Wait(2100 + Random(1500));
       exit;
     end
     else
-      addToSRLLog('Frog_IsTalkingTo: Could not continue chat with Frog Princess');
-  until ((Attempt > 5) or (TimefromMark(T) > 50000) or Result);
-  if (Attempt > 5) then
+      addToSRLLog('Frog_IsTalkingTo[backup]: Could not continue chat with Frog Princess');
+  until ((Attempt > 7) or (TimefromMark(T) > 50000) or Result);
+  end;
+  if (Attempt > 7) then
   begin
     addToSRLLog('Frog_IsTalkingTo: Attempts are greater than 5');
     Wait(3000 + Random(1000));
     result := false;
   end;
+end;
+
+(**
+ * Author: Justin & Flight
+ * Modified by: Krazy_Meerkat
+ * Description: Handles solving the random event.
+ *)
+function Frog_Solve2(): boolean;
+begin
+  if (not loggedIn()) then
+    exit;
+ Deg := RS_GetCompassAngleDegrees;
+ Wait(100 + random(50));
+  Frog_Setup();
+      if Frog_FindFrog then
+        result := Frog_IsTalkingTo;
+  MouseSpeed := O_MouseSpeed;
+  if (not result) then
+    addToSRLLog('Frog_Solve2: Frog solver failed or timed out');
+  MakeCompass(Deg);
 end;
 
 (**
@@ -264,6 +416,8 @@ var
 begin
   if (not loggedIn()) then
     exit;
+ Deg := RS_GetCompassAngleDegrees;
+ Wait(100 + random(50));
   t := (getSystemTime + (10 * 60000));
   Frog_Setup();
   repeat
@@ -274,4 +428,5 @@ begin
   MouseSpeed := O_MouseSpeed;
   if (not result) then
     addToSRLLog('Frog_Solve: Frog solver failed or timed out');
+  MakeCompass(Deg);
 end;

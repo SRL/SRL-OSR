@@ -1034,7 +1034,8 @@ begin
   begin
   _resetColorMods( tmpTS,tmpH,tmpS,tmpMod);
     if ((SRL_Randoms[i].isInvRandom) and (not checkInv)) then
-      continue;
+      continue else
+      solveBox;
 
     if (_SolveRandom(i, manually)) then
     begin
