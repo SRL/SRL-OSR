@@ -1948,204 +1948,165 @@ begin
   end;
 end;
 
-(*
-ToggleNumberOfMouseButtons
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: pascal
-
-    function ToggleNumberOfMouseButtons(ToggleOn:Boolean): Boolean;
-
-Toggles NumberOfMouseButtons Option if LoggedIn
-returns true if changed.
-
-.. note::
-
-    by DannyRS
-    Last Modified: March, 2nd, 2013 by DannyRS
-
-Example:
-
-.. code-block:: pascal
-
-*)
-function ToggleNumberOfMouseButtons(ToggleOn:Boolean): Boolean;
-var
-  CCount: Integer;
+//by Flight (17-10-2013)
+function setMouseButtons(Num: Integer): Boolean;
 begin
-  Result:=False;
-  if (not loggedin) then Exit;
+  Result := False;
+  if not loggedin() then
+    Exit;
 
-  if (not GameTab(tab_Options)) then exit;
+  if (not gameTab(tab_Options)) then
+    Exit;
 
-  CCount := (CountColorTolerance(2369440,570,360,600,360,20));
-
-  if (ToggleOn) then
+  if not inRange(Num, 1, 2) then
   begin
-    if (not (CCount > 1)) then
-    begin
-      MouseBox(570, 361, 601, 392, mouse_left);
-      Result:=True;
-    end;
-  end
-  else
-  begin
-    if (CCount > 1) then
-    begin
-      MouseBox(570, 361, 601, 392, mouse_left);
-      Result:=True;
-    end;
+    srl_Warn('setMouseButtons', 'Invalid number: ' + intToStr(Num) + ', please use 1/2', warn_AllVersions);
+    Exit;
   end;
+
+  if (Num = 2) then
+  begin
+    if (countColorTolerance(1777019, 555, 361, 593, 400, 15) > 50) then
+    begin
+      Result := True;
+      Exit;
+    end else
+    begin
+      MouseBox(555, 361, 593, 400, mouse_left);
+      Result := True;
+      Exit;
+    end;
+  end else if (Num = 1) then
+    if (countColorTolerance(1777019, 555, 361, 593, 400, 15) > 50) then
+    begin
+      MouseBox(555, 362, 593, 400, mouse_left);
+      Result := True;
+      Exit;
+    end;
 end;
 
-(*
-ToggleChatEffects
-~~~~~~~~~~~~~~~~~
-
-.. code-block:: pascal
-
-    function ToggleChatEffects(ToggleOn:Boolean): Boolean;
-
-Toggles ChatEffects Option if LoggedIn
-returns true if changed.
-
-.. note::
-
-    by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
-
-Example:
-
-.. code-block:: pascal
-
-*)
-function ToggleChatEffects(ToggleOn:Boolean): Boolean;
-var
-  CCount: Integer;
+//by Flight (17-10-2013)
+function toggleChatEffects(Enable: Boolean): Boolean;
 begin
-  Result:=False;
-  if (not loggedin) then Exit;
+  Result := False;
+  if not loggedin() then
+    Exit;
 
-  if (not GameTab(tab_Options)) then exit;
+  if (not gameTab(tab_Options)) then
+    Exit;
 
-  CCount := (CountColorTolerance(2369440,626,358,656,360,20));
-
-  if (ToggleOn) then
+  if Enable then
   begin
-    if (not (CCount > 1)) then
+    if (countColorTolerance(1777019, 601, 362, 638, 400, 15) > 50) then
     begin
-      MouseBox(626, 361, 657, 392, mouse_left);
-      Result:=True;
-    end;
-  end
-  else
-  begin
-    if (CCount > 1) then
+      Result := True;
+      Exit;
+    end else
     begin
-      MouseBox(626, 361, 657, 392, mouse_left);
-      Result:=True;
+      MouseBox(601, 362, 638, 400, mouse_left);
+      Result := True;
+      Exit;
     end;
-  end;
+  end else if not Enable then
+    if (countColorTolerance(1777019, 601, 362, 638, 400, 15) > 50) then
+    begin
+      MouseBox(601, 362, 638, 400, mouse_left);
+      Result := True;
+      Exit;
+    end;
 end;
 
-(*
-ToggleSplitPrivateChat
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: pascal
-
-    function ToggleSplitPrivateChat(ToggleOn:Boolean): Boolean;
-
-Toggles SplitPrivateChat Option if LoggedIn
-returns true if changed.
-
-.. note::
-
-    by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
-
-Example:
-
-.. code-block:: pascal
-
-*)
-function ToggleSplitPrivateChat(ToggleOn:Boolean): Boolean;
-var
-  CCount: Integer;
+//by Flight (17-10-2013)
+function toggleSplitChat(Enable: Boolean): Boolean;
 begin
-  Result:=False;
-  if (not loggedin) then Exit;
+  Result := False;
+  if not loggedin() then
+    Exit;
 
-  if (not GameTab(tab_Options)) then exit;
+  if (not gameTab(tab_Options)) then
+    Exit;
 
-  CCount := (CountColorTolerance(2369440,682,358,712,360,20));
-
-  if (ToggleOn) then
+  if Enable then
   begin
-    if (not (CCount > 1)) then
+    if (countColorTolerance(1777019, 646, 362, 683, 400, 15) > 50) then
     begin
-      MouseBox(682, 361, 713, 392, mouse_left);
-      Result:=True;
-    end;
-  end
-  else
-  begin
-    if (CCount > 1) then
+      Result := True;
+      Exit;
+    end else
     begin
-      MouseBox(682, 361, 713, 392, mouse_left);
-      Result:=True;
+      MouseBox(646, 362, 683, 400, mouse_left);
+      Result := True;
+      Exit;
     end;
-  end;
+  end else if not Enable then
+    if (countColorTolerance(1777019, 646, 362, 683, 400, 15) > 50) then
+    begin
+      MouseBox(646, 362, 683, 400, mouse_left);
+      Result := True;
+      Exit;
+    end;
 end;
 
-(*
-ToggleAcceptAid
-~~~~~~~~~~~~~~~
-
-.. code-block:: pascal
-
-    function ToggleAcceptAid(ToggleOn:Boolean): Boolean;
-
-Toggles AcceptAid Option if LoggedIn
-returns true if changed.
-
-.. note::
-
-    by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
-
-Example:
-
-.. code-block:: pascal
-
-*)
-function ToggleAcceptAid(ToggleOn:Boolean): Boolean;
-var
-  CCount: Integer;
+//by Flight (17-10-2013)
+function toggleChatFilter(Enable: Boolean): Boolean;
 begin
-  Result:=False;
-  if (not loggedin) then Exit;
+  Result := False;
+  if not loggedin() then
+    Exit;
 
-  if (not GameTab(tab_Options)) then exit;
+  if (not gameTab(tab_Options)) then
+    Exit;
 
-  CCount := (CountColorTolerance(2369440,570,412,600,414,20));
-
-  if (ToggleOn) then
+  if Enable then
   begin
-    if (not (CCount > 1)) then
+    if (countColorTolerance(1777019, 691, 362, 728, 400, 15) > 50) then
     begin
-      MouseBox(570, 415, 601, 446, mouse_left);
-      Result:=True;
+      Result := True;
+      Exit;
+    end else
+    begin
+      MouseBox(691, 362, 728, 400, mouse_left);
+      Result := True;
+      Exit;
     end;
-  end
-  else
+  end else if not Enable then
+    if (countColorTolerance(1777019, 691, 362, 728, 400, 15) > 50) then
+    begin
+      MouseBox(691, 362, 728, 400, mouse_left);
+      Result := True;
+      Exit;
+    end;
+end;
+
+//by Flight (17-10-2013)
+function toggleAcceptAid(Enable: Boolean): Boolean;
+begin
+  Result := False;
+  if not loggedin() then
+    Exit;
+
+  if (not gameTab(tab_Options)) then
+    Exit;
+
+  if Enable then
   begin
-    if (CCount > 1) then
+    if (countColorTolerance(1777019, 568, 413, 603, 449, 15) > 50) then
     begin
-      MouseBox(570, 415, 601, 446, mouse_left);
-      Result:=True;
+      Result := True;
+      Exit;
+    end else
+    begin
+      MouseBox(568, 413, 603, 449, mouse_left);
+      Result := True;
+      Exit;
     end;
-  end;
+  end else if not Enable then
+    if (countColorTolerance(1777019, 568, 413, 603, 449, 15) > 50) then
+    begin
+      MouseBox(568, 413, 603, 449, mouse_left);
+      Result := True;
+      Exit;
+    end;
 end;
 
 (*
@@ -2179,7 +2140,7 @@ TAA          Toggle Accept Aid          Off / On
 .. note::
 
     by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
+    Last Modified: Oct. 17th, 2013 by Flight
 
 Example:
 
@@ -2188,17 +2149,18 @@ Example:
     SetGraphics(4,1,1,1,True,True,True,False);
 
 *)
-procedure SetGraphics(Bright,MVol,SEVol,ASEVol: Integer; TNMB,TCE,TSPC,TAA: Boolean);
+procedure SetGraphics(Bright,MVol,SEVol,ASEVol,MBN: Integer; TCE,TSC,TCF,TAA: Boolean);
 begin
   if (not LoggedIn) then exit;
   if SetBrightness(Bright) then Wait(90 + Random(200));
   if SetVolumeMusic(MVol) then Wait(90 + Random(200));
   if SetVolumeSoundEffect(SEVol) then Wait(90 + Random(200));
   if SetVolumeAreaSoundEffect(ASEVol) then Wait(90 + Random(200));
-  if ToggleNumberOfMouseButtons(TNMB) then Wait(90 + Random(200));
-  if ToggleChatEffects(TCE) then Wait(90 + Random(200));
-  if ToggleSplitPrivateChat(TSPC) then Wait(90 + Random(200));
-  if ToggleAcceptAid(TAA) then Wait(90 + Random(200));
+  if setMouseButtons(MBN) then Wait(90 + Random(200));
+  if toggleChatEffects(TCE) then Wait(90 + Random(200));
+  if toggleSplitChat(TSC) then Wait(90 + Random(200));
+  if toggleChatFilter(TCF) then Wait(90 + Random(200));
+  if toggleAcceptAid(TAA) then Wait(90 + Random(200));
 end;
 
 (*
@@ -2214,7 +2176,7 @@ Fixes the Graphic Options if LoggedIn
 .. note::
 
     by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
+    Last Modified: Oct. 17th, 2013 by Flight
 
 Example:
 
@@ -2223,7 +2185,7 @@ Example:
 *)
 procedure FixGraphics;
 begin
-  SetGraphics(4,0,0,0,True,True,True,False);
+  SetGraphics(4,0,0,0,2,True,True,False,False);
 end;
 
 (*
