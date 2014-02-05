@@ -1710,48 +1710,22 @@ begin
   Result := False;
   if (GameTab(tab_Options)) then
   begin
-    CCount := CountColorTolerance(2369440, 626, 412, 657, 413, 20);
+    CCount := CountColorTolerance(2369440, 647, 413, 682, 448, 20);
     if (Run) then
     begin
       if (CCount<1) then
-        MouseBox(626, 415, 657, 446, mouse_left);
+        MouseBox(647, 413, 682, 448, mouse_left);
       Result := True;
     end else
     begin
       if (CCount>1) then
-        MouseBox(626, 415, 657, 446, mouse_left);
+        MouseBox(647, 413, 682, 448, mouse_left);
       Result := True;
     end;
   end;
 end;
 
-(*
-GetRunEnergy
-~~~~~~~~~~~~
-
-.. code-block:: pascal
-
-    function GetRunEnergy: Integer;
-
-    returns current run %
-
-.. note::
-
-    by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
-
-Example:
-
-.. code-block:: pascal
-
-*)
-function GetRunEnergy: Integer;
-begin
-  Result := -1;
-  if not FTab(tab_Options) then Exit;
-  Result := StrToIntDef(ExtractFromStr(GetTextAtExWrap(625, 434, 658, 446,
-                      0, 5, 1, 39167, 0, 'UpChars07'), Numbers), - 1);
-end;
+function getRunEnergy(): Integer; forward;
 
 (*
 RunEnergy
