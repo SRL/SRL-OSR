@@ -22,12 +22,19 @@ var
 procedure SMART_SetupDebug;
 begin
   SmartSetDebug(smartCurrentTarget, True);
+  {$IFDEF LAPE}
+  SMART_Canvas.init();
+  {$ELSE}
   SMART_Canvas := TMufasaBitmap.Create;
+  {$ENDIF}
   SMART_Canvas.setSize(765, 503);
-
+  {$IFDEF LAPE}
+  SetPersistentMemoryBitmap(SMART_Canvas.getIndex(), SmartDebugArray(smartCurrentTarget), 765, 503);
+  SMART_Canvas.drawClear(0); //clear it in case of previous usage
+  {$ELSE}
   SetPersistentMemoryBitmap(SMART_Canvas.index, SmartDebugArray(smartCurrentTarget), 765, 503);
-
   SMART_Canvas.FastDrawClear(0); //clear it in case of previous usage
+  {$ENDIF}
   SMART_DebugSetup := true;
   if not SMART_Reset then
     AddOnTerminate('SMART_FreeDebug');
@@ -61,8 +68,11 @@ procedure SMART_ClearCanvas;
 begin
   if (not SMART_DebugSetup) then
     SMART_SetupDebug;
-
+  {$IFDEF LAPE}
+  SMART_Canvas.drawClear(0);
+  {$ELSE}
   SMART_Canvas.FastDrawClear(0);
+  {$ENDIF}
 
 {$ELSE}
 begin
@@ -354,14 +364,17 @@ begin
     if Clear then
       SMART_ClearCanvas;
 
+    {$IFDEF LAPE}
+    TPA := TPAFromEllipse(Center.X, Center.Y, XRadius, YRadius);
+    FillEllipse(TPA);
+    if (Length(TPA) >= 1) then
+      SMART_DrawDotsEx(Clear, TPA, Color);
+    {$ELSE}
     TempTBitmap := TBitmap.Create;
     TempTBitmap.Canvas.Brush.COLOR := Color;
-
     TempTBitmap.Width := (XRadius * 2);
     TempTBitmap.Height := (YRadius * 2);
-
     TempTBitmap.Canvas.Ellipse(Center.X - XRadius, Center.Y - YRadius, Center.X + XRadius, Center.Y + YRadius);
-
     TempMufasa := TMufasaBitmap.Create;
     TempMufasa.LoadFromTBitmap(TempTBitmap);
     if (SMART_Canvas.TransparentColorSet) then
@@ -370,6 +383,7 @@ begin
     FastDrawTransparent(0, 0, TempMufasa.Index, SMART_Canvas.Index);
     TempMufasa.Free;
     TempTBitmap.Free;
+    {$ENDIF}
   end else
   begin
     TPA := TPAFromEllipse(Center.X, Center.Y, XRadius, YRadius);
@@ -505,7 +519,11 @@ begin
   if (Clear) then
     SMART_ClearCanvas;
 
+  {$IFDEF LAPE}
+  FastDrawTransparent(Placement.X, Placement.Y, Bitmap, SMART_Canvas.getIndex());
+  {$ELSE}
   FastDrawTransparent(Placement.X, Placement.Y, Bitmap, SMART_Canvas.Index);
+  {$ENDIF}
 end;
 
 {*
@@ -518,7 +536,12 @@ begin
   try
     if (SMART_DebugSetup) then
     begin
+      {$IFDEF LAPE}
+      ResetPersistentMemoryBitmap(SMART_Canvas.getIndex());
+      {$ELSE}
       ResetPersistentMemoryBitmap(SMART_Canvas.Index);
+      {$ENDIF}
+
       SMART_Canvas.Free;
       SMART_DebugSetup := False;
       SMART_Reset := True;
