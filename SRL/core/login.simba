@@ -600,7 +600,6 @@ begin
       if (Actions[0] <> 'Not a Members Account') then
       begin
         Wait(1000 + Random(500));
-        TypeByte(vk_Escape);
       end;
       Wait(Actions[1] + Random(100));
       if (Actions[2] <> 0) then
