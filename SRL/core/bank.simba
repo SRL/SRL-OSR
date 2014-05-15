@@ -82,7 +82,7 @@ Example:
 *)
 function BankScreen: Boolean;
 begin
-  result := findTextTPA(2070783, 5, 119, 287, 149, 302, 'mode', 'SmallChars07', nothing);
+  result := findTextTPA(2070783, 5, 115, 287, 155, 312, 'mode', 'SmallChars07', nothing);
 end;
 
 (*
@@ -514,12 +514,12 @@ begin
   if (not InRange(Index, 1, 48)) then
   begin
     srl_Warn('BankIndexToMSPoint', 'Specified index is not a visible bank slot.  Returning first slot''s bank point.', warn_AllVersions);
-    Result := Point(MBX1, MBY1);
+    Result := Point(73, 85);
     Exit;
   end;
   Index := Index - 1;
-  Result := Point(MBX1 + ((Index mod 8) * 47), MBY1 + (38 * (Index div 8)));
-end;
+  Result := Point(73 + ((Index mod 8) * 47), 85 + (38 * (Index div 8)));
+end; 
 
 (*
 BankIndexToMSBox
@@ -911,8 +911,8 @@ begin
   if BankScreen then
   begin
     case lowercase(Which) of
-      'inventory','inv':          MouseBox(428, 291, 460, 322, mouse_left);
-      'equipment','worn','equip': MouseBox(465, 291, 497, 322, mouse_left);
+      'inventory','inv':          MouseBox(431, 304, 458, 327, mouse_left);
+      'equipment','worn','equip': MouseBox(467, 300, 491, 326, mouse_left);
       else
         SRL_Warn('QuickDeposit', 'Invalid deposit method ', WARN_ALLVERSIONS);
     end;
