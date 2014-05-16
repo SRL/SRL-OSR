@@ -682,13 +682,13 @@ procedure FixBank;
 var
   Timer   : Integer;
 begin
-  if (SimilarColors(GetColor(480, 80), 1777699, 20)) then
+  if (SimilarColors(GetColor(490, 100), 1646629, 20)) then   
     if (BankScreen) then
-      if (not (SimilarColors(GetColor(480, 80), 3359309, 5))) then
+      if (not (SimilarColors(GetColor(490, 100), 4875635, 15))) then   
       begin
         Timer := GetTimeRunning + 5000;
-        MouseBox(469, 76, 480, 87, mouse_Left);
-        while ((not (SimilarColors(GetColor(480, 80), 3359309, 5))) and (GetTimeRunning < Timer)) do
+        MouseBox(486, 85, 493, 94, mouse_Left);
+        while ((not (SimilarColors(GetColor(490, 100), 4875635, 15))) and (GetTimeRunning < Timer)) do  
           Wait(50 + Random(50));
         Wait(RandomRange(100, 200));
       end;
@@ -980,15 +980,15 @@ begin
     begin
       if (WaitOptionMultiEx(['Withdraw-All', 'w-A'], 'All', Nothing, 300)) then
         Result := ChooseOptionMulti(['Withdraw-All', 'w-A']);
-    end else
-      if (WaitOptionMultiEx(['Withdraw-' + IntToStr(Amount) + ' ', 'w-' + IntToStr(Amount) + ' '], 'All', Nothing, 300)) then
-        Result := ChooseOptionMulti(['Withdraw-' + IntToStr(Amount) + ' ', 'w-' + IntToStr(Amount) + ' ']);
+    end;
 
   if (not (Result)) and (Amount > 0) then
   begin
     if (not OptionsExist(['Withdraw', 'ithdraw', 'draw'], False)) then
       MouseBox(BBox.X1 + 5, BBox.Y1 + 5, BBox.X2 - 5, BBox.Y2 - 5, mouse_right);
-
+    Result := WaitOptionMulti(['Withdraw-' + IntToStr(Amount) + ' ', 'w-' + IntToStr(Amount) + ' '], 500);
+    if (Result) then 
+      Exit;   
     if WaitOptionMulti(['Withdraw-X', 'w-X', 'X'], 500) then
     begin
        X := GetSystemTime + 10000;
