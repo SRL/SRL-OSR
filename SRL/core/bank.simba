@@ -969,7 +969,12 @@ begin
     Result := True;
     Wait(RandomRange(250, 550));
     Exit;
-  end;
+  end else
+    if (amount > 1) then
+    begin
+      if (WaitOptionMultiEx(['Withdraw-' + IntToStr(Amount) + ' ', 'w-' + IntToStr(Amount) + ' ', IntToStr(Amount) + ' '], 'All', Nothing, 500)) then
+        Result := ChooseOptionMulti(['Withdraw-' + IntToStr(Amount) + ' ', 'w-' + IntToStr(Amount) + ' ', IntToStr(Amount) + ' ']);
+    end;
 
   if (Amount = -1) then
   begin
@@ -982,13 +987,10 @@ begin
         Result := ChooseOptionMulti(['Withdraw-All', 'w-A']);
     end;
 
-  if (not (Result)) and (Amount > 0) then
+  if (not (Result)) and (Amount > 1) then
   begin
-    if (not OptionsExist(['Withdraw', 'ithdraw', 'draw'], False)) then
+    if (not OptionsExist(['Withdraw', 'ithdraw', 'draw', 'raw'], False)) then
       MouseBox(BBox.X1 + 5, BBox.Y1 + 5, BBox.X2 - 5, BBox.Y2 - 5, mouse_right);
-    Result := WaitOptionMulti(['Withdraw-' + IntToStr(Amount) + ' ', 'w-' + IntToStr(Amount) + ' '], 500);
-    if (Result) then 
-      Exit;   
     if WaitOptionMulti(['Withdraw-X', 'w-X', 'X'], 500) then
     begin
        X := GetSystemTime + 10000;
@@ -999,8 +1001,7 @@ begin
        Result := True;
     end;
   end;
-end;
-
+end; 
 (*
 Withdraw
 ~~~~~~~~
@@ -1255,7 +1256,7 @@ begin
   begin
     Timer := GetTimeRunning + 8000;
     repeat
-      MouseBox(479, 36, 489, 45, mouse_left);
+      MouseBox(480, 16, 490, 27, mouse_left);
       for i := 0 to 30 do
       begin
         if not BankScreen then
