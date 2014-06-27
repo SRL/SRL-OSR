@@ -184,7 +184,7 @@ begin
   P := WorldIndexToMSPoint(Index);
   Result.X1 := P.X;
   Result.Y1 := P.Y;
-  Result.X2 := Result.X1 + 83;
+  Result.X2 := Result.X1 + 82;
   Result.Y2 := Result.Y1 + 18;
 end;
 
