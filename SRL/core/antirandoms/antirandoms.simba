@@ -1048,7 +1048,7 @@ begin
 
       // solve reward box if a non inventory random was just solved
       if (loggedIn()) then // if solver failed, player would be logged out
-        if (not SRL_Randoms[i].isInvRandom) then
+        if ((not SRL_Randoms[i].isInvRandom) and checkInv) then
         begin
           // reward box doesn't exist if inventory is full/some randoms don't have reward box
           result := (invFull() or (not SRL_Randoms[i].hasRewardBox));
