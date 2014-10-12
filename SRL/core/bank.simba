@@ -1238,7 +1238,7 @@ Closes the bank window - Tries twice before exiting
 .. note::
 
     Author: Starblaster100
-    Last Modified: Ashaman88 -07
+    Last Modified: elfyyy 10/11/2014
 
 Example:
 
@@ -1256,7 +1256,7 @@ begin
   begin
     Timer := GetTimeRunning + 8000;
     repeat
-      MouseBox(480, 16, 490, 27, mouse_left);
+      MouseBox(478, 34, 492, 47, mouse_left);
       for i := 0 to 30 do
       begin
         if not BankScreen then
