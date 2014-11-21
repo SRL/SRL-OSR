@@ -1284,7 +1284,7 @@ begin
 
     Timer := GetTimeRunning + 8000;
     repeat
-      MouseBox(478, 34, 492, 47, mouse_left);
+      MouseBox(Box.X1, Box.Y1, Box.X2, Box.Y2, mouse_left);
       for i := 0 to 30 do
       begin
         if not BankScreen then
