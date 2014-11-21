@@ -108,7 +108,7 @@ Example:
 *)
 function BankTabs: Boolean;
 begin
-  Result := CountColorTolerance(2070783, 16, 7, 397, 30, 5) > 300;
+  Result := (not findTextTPA(2070783, 5, 23, 41, 45, 52, '600', 'StatChars07', nothing));
 end;
 
 (*
@@ -300,7 +300,7 @@ begin
   if BankTabs then
     TheBox := IntToBox(17, 8, 37, 27)
   else
-    TheBox := IntToBox(25, 28, 45, 38);
+    TheBox := IntToBox(23, 41, 45, 52);
 
   S := GetTextAtExWrap(TheBox.X1, TheBox.Y1, TheBox.X2, TheBox.Y2, 1, 2, 1, 2070783, 0, StatChars07);
   S := GetNumbers(S);
@@ -434,7 +434,7 @@ Converts a point on the Mainscreen to the point in the Bank.
 .. note::
 
     Author: euphemism
-    Last Modified: March 2013
+    Last Modified: 11-21-14 elfyyy
 
 Example:
 
@@ -534,39 +534,6 @@ begin
 end;
 
 (*
-BankIndexToMSPoint
-~~~~~~~~~~~~~~~~~~
-
-.. code-block:: pascal
-
-    function BankIndexToMSPoint(Index: Integer): TPoint;
-
-Converts the Bank Index (spot in bank) to a Mainscreen TPoint of the Index. (Top Left)
-
-.. note::
-
-    Author: euphemism
-    Last Modified: March 2013
-
-Example:
-
-.. code-block:: pascal
-
-    msPoint := BankIndexToMSPoint(index);
-*)
-function BankIndexToMSPoint(Index: Integer): TPoint; //Depreciated Function 11-20-14
-begin
-  if (not InRange(Index, 1, 48)) then
-  begin
-    srl_Warn('BankIndexToMSPoint', 'Specified index is not a visible bank slot.  Returning first slot''s bank point.', warn_AllVersions);
-    Result := Point(73, 85);
-    Exit;
-  end;
-  Index := Index - 1;
-  Result := Point(77 + ((Index mod 8) * 47), 70 + (38 * (Index div 8)));
-end;
-
-(*
 BankIndexToMSBox
 ~~~~~~~~~~~~~~~~
 
@@ -592,9 +559,45 @@ var
    P: TPoint;
    Boxes: TBoxArray;
 begin
-  P := BankIndexToMSPoint(Index);
-  Boxes:= Grid(8, 6, 32, 32, 48, 36, Point(88,84));
+  if BankTabs then
+    P := Point(88,99)
+  else
+    P := Point(88,84);
+
+  Boxes:= Grid(8, 6, 32, 32, 48, 36, P);
   Result := Boxes[Index - 1];
+end;
+
+(*
+BankIndexToMSPoint
+~~~~~~~~~~~~~~~~~~
+
+.. code-block:: pascal
+
+    function BankIndexToMSPoint(Index: Integer): TPoint;
+
+Converts the Bank Index (spot in bank) to a Mainscreen TPoint of the Index. (Middle)
+
+.. note::
+
+    Author: euphemism
+    Last Modified: 11-21-14 elfyyy
+
+Example:
+
+.. code-block:: pascal
+
+    msPoint := BankIndexToMSPoint(index);
+*)
+function BankIndexToMSPoint(Index: Integer): TPoint;
+begin
+  if (not InRange(Index, 1, 48)) then
+  begin
+    srl_Warn('BankIndexToMSPoint', 'Specified index is not a visible bank slot.  Returning first slot''s bank point.', warn_AllVersions);
+    Result := MiddleBox(BankIndexToMSBox(1));
+    Exit;
+  end;
+  Result := MiddleBox(BankIndexToMSBox(Index));
 end;
 
 (*
