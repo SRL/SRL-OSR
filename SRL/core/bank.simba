@@ -86,6 +86,32 @@ begin
 end;
 
 (*
+BankTabs
+~~~~~~~~~~
+
+.. code-block:: pascal
+
+    function BankTabs: Boolean;
+
+Returns true if bank tabs are being used
+
+.. note::
+
+    Author: elfyyy
+    Last Modified: 11-20-14
+
+Example:
+
+.. code-block:: pascal
+
+
+*)
+function BankTabs: Boolean;
+begin
+  Result := (not findTextTPA(2070783, 5, 23, 41, 45, 52, '600', 'StatChars07', nothing));
+end;
+
+(*
 DepositScreen
 ~~~~~~~~~~~~~
 
@@ -190,7 +216,7 @@ Finds Pin Screen. Returns true if Found.
 .. note::
 
     Author: Naum
-    Last Modified: Unknown
+    Last Modified: 11-21-14 elfyyy
 
 Example:
 
@@ -255,7 +281,7 @@ Returns the number of total items in your bank account.
 .. note::
 
     Author: Flight
-    Last Modified: 12-9-2013
+    Last Modified: 11-20-14 elfyyy
 
 Example:
 
@@ -266,12 +292,18 @@ Example:
 function getBankItemCount: integer;
 var
   S: String;
+  TheBox: TBox;
 begin
   Result := 0;
   if Not BankScreen then
     Exit;
+  if BankTabs then
+    TheBox := IntToBox(17, 8, 37, 27)
+  else
+    TheBox := IntToBox(23, 41, 45, 52);
 
-  S := GetTextAtExWrap(25, 28, 45, 38, 1, 2, 1, 2070783, 0, StatChars07);
+  S := GetTextAtExWrap(TheBox.X1, TheBox.Y1, TheBox.X2, TheBox.Y2, 1, 2, 1, 2070783, 0, StatChars07);
+  S := GetNumbers(S);
   Result := StrToInt(Replace(S, ' ', ''));
 end;
 
@@ -402,7 +434,7 @@ Converts a point on the Mainscreen to the point in the Bank.
 .. note::
 
     Author: euphemism
-    Last Modified: March 2013
+    Last Modified: 11-21-14 elfyyy
 
 Example:
 
@@ -414,10 +446,23 @@ function MSTPointToBankPoint(MSP: TPoint): TPoint;
 var
   H, I: Integer;
   BetweenRowsAndColumns: Array of TBoxArray; //The rows and columns of empty space between the item slots.
+  StartPoint0, StartPoint1: TPoint;
 begin
+  if BankTabs then
+  begin
+    StartPoint0 := Point(259, 115);
+    StartPoint1 := Point(114, 192);
+  end
+  else
+  begin
+    StartPoint0 := Point(259, 99);
+    StartPoint1 := Point(115, 172);
+  end;
+
   SetLength(BetweenRowsAndColumns, 2);
-  BetweenRowsAndColumns[0] := Grid(1, 5, (MBX2 - MBX1), 5, 0, 38, Point(259, 96));
-  BetweenRowsAndColumns[1] := Grid(7, 1, 14, (MBY2 - MBY1), 47, 0, Point(118, 172));
+  BetweenRowsAndColumns[0] := Grid(1, 5, (MBX2 - MBX1), 5, 0, 38, StartPoint0);
+  BetweenRowsAndColumns[1] := Grid(7, 1, 14, (MBY2 - MBY1), 47, 0, StartPoint1);
+
   for H := 0 to 1 do
     for I := 0 to High(BetweenRowsAndColumns[h]) do
       if PointInBox(MSP, BetweenRowsAndColumns[h][i]) then
@@ -489,39 +534,6 @@ begin
 end;
 
 (*
-BankIndexToMSPoint
-~~~~~~~~~~~~~~~~~~
-
-.. code-block:: pascal
-
-    function BankIndexToMSPoint(Index: Integer): TPoint;
-
-Converts the Bank Index (spot in bank) to a Mainscreen TPoint of the Index. (Top Left)
-
-.. note::
-
-    Author: euphemism
-    Last Modified: March 2013
-
-Example:
-
-.. code-block:: pascal
-
-    msPoint := BankIndexToMSPoint(index);
-*)
-function BankIndexToMSPoint(Index: Integer): TPoint;
-begin
-  if (not InRange(Index, 1, 48)) then
-  begin
-    srl_Warn('BankIndexToMSPoint', 'Specified index is not a visible bank slot.  Returning first slot''s bank point.', warn_AllVersions);
-    Result := Point(73, 85);
-    Exit;
-  end;
-  Index := Index - 1;
-  Result := Point(73 + ((Index mod 8) * 47), 85 + (38 * (Index div 8)));
-end; 
-
-(*
 BankIndexToMSBox
 ~~~~~~~~~~~~~~~~
 
@@ -534,7 +546,7 @@ Converts the Bank Index (spot in bank) to a Mainscreen TBox of the Index.
 .. note::
 
     Author: Wizzup
-    Last Modified: March 2013
+    Last Modified: 11-20-14 elfyyy
 
 Example:
 
@@ -545,9 +557,47 @@ Example:
 function BankIndexToMSBox(Index: Integer): TBox;
 var
    P: TPoint;
+   Boxes: TBoxArray;
 begin
-  P := BankIndexToMSPoint(Index);
-  Result := IntToBox(P.x, P.y, P.x + 31, P.y + 31);
+  if BankTabs then
+    P := Point(88,99)
+  else
+    P := Point(88,84);
+
+  Boxes:= Grid(8, 6, 32, 32, 48, 36, P);
+  Result := Boxes[Index - 1];
+end;
+
+(*
+BankIndexToMSPoint
+~~~~~~~~~~~~~~~~~~
+
+.. code-block:: pascal
+
+    function BankIndexToMSPoint(Index: Integer): TPoint;
+
+Converts the Bank Index (spot in bank) to a Mainscreen TPoint of the Index. (Middle)
+
+.. note::
+
+    Author: euphemism
+    Last Modified: 11-21-14 elfyyy
+
+Example:
+
+.. code-block:: pascal
+
+    msPoint := BankIndexToMSPoint(index);
+*)
+function BankIndexToMSPoint(Index: Integer): TPoint;
+begin
+  if (not InRange(Index, 1, 48)) then
+  begin
+    srl_Warn('BankIndexToMSPoint', 'Specified index is not a visible bank slot.  Returning first slot''s bank point.', warn_AllVersions);
+    Result := MiddleBox(BankIndexToMSBox(1));
+    Exit;
+  end;
+  Result := MiddleBox(BankIndexToMSBox(Index));
 end;
 
 (*
@@ -670,7 +720,7 @@ Scrolls the bank screen up.
 .. note::
 
     Author: lordsaturn, Nava2, IceFire908 & Bixby Sayz
-    Last Modified: Unknown
+    Last Modified: 11-20-14 elfyyy
 
 Example:
 
@@ -680,18 +730,23 @@ Example:
 *)
 procedure FixBank;
 var
-  Timer   : Integer;
+  Timer: Integer;
+  Box: Tbox;
 begin
-  if (SimilarColors(GetColor(490, 100), 1646629, 20)) then   
-    if (BankScreen) then
-      if (not (SimilarColors(GetColor(490, 100), 4875635, 15))) then   
-      begin
-        Timer := GetTimeRunning + 5000;
-        MouseBox(486, 85, 493, 94, mouse_Left);
-        while ((not (SimilarColors(GetColor(490, 100), 4875635, 15))) and (GetTimeRunning < Timer)) do  
-          Wait(50 + Random(50));
-        Wait(RandomRange(100, 200));
-      end;
+  if BankTabs then
+    Box := intToBox(482, 97, 497, 102)
+  else
+    Box := intToBox(482, 75, 497, 80);
+
+  if (BankScreen) then
+    if (not (CountColor(4216418, Box.X1, Box.Y1, Box.X2, Box.Y2) > 0)) then
+    begin
+      Timer := GetTimeRunning + 5000;
+      MouseBox(Box.X1, Box.Y1, Box.X2, Box.Y2, mouse_Left);
+      while ((not (CountColor(4216418, Box.X1, Box.Y1, Box.X2, Box.Y2) > 0)) and (GetTimeRunning < Timer)) do
+        Wait(50 + Random(50));
+      Wait(RandomRange(100, 200));
+  end;
 end;
 
 (*
@@ -725,38 +780,6 @@ begin
   if (not PointInBox(Point(X, Y), BankBox)) then
     MouseBox(BankBox.X1, BankBox.Y1, BankBox.X2, BankBox.Y2, Action);
 end;
-
-(*
-QuickDeposit
-~~~~~~~~~~~~
-
-.. code-block:: pascal
-
-    function QuickDeposit(Which: Integer): Boolean;
-
-Uses the quick deposit buttons in the bottom right of the bank.  Valid
-arguments for 'Which' are:
-    * SRL_DEPOSIT_ALL
-    * SRL_DEPOSIT_COINS
-    * SRL_DEPOSIT_EQUIPMENT
-    * SRL_DEPOSIT_FOLLOWER
-
-.. note::
-
-    Author: ZephyrsFury & Quickmarch & Shuttleu
-    Last Modified: January 08, 2012 by Coh3n
-
-Example:
-
-.. code-block:: pascal
-
-    QuickDeposit(SRL_DEPOSIT_COINS);
-*)
-const
-  SRL_DEPOSIT_ALL = 0;
-  SRL_DEPOSIT_COINS = 1;
-  SRL_DEPOSIT_EQUIPMENT = 2;
-  SRL_DEPOSIT_FOLLOWER = 3;
 
 (*
 Deposit
@@ -1238,7 +1261,7 @@ Closes the bank window - Tries twice before exiting
 .. note::
 
     Author: Starblaster100
-    Last Modified: elfyyy 10/11/2014
+    Last Modified: elfyyy 11-21-14
 
 Example:
 
@@ -1250,13 +1273,19 @@ Example:
 function CloseBank: Boolean;
 var
   i, Timer: Integer;
+  Box: TBox;
 begin
   Result := False;
   if BankScreen then
   begin
+    if BankTabs then
+      Box := IntToBox(476, 14, 497, 32)
+    else
+      Box := IntToBox(476, 32, 497, 50);
+
     Timer := GetTimeRunning + 8000;
     repeat
-      MouseBox(478, 34, 492, 47, mouse_left);
+      MouseBox(Box.X1, Box.Y1, Box.X2, Box.Y2, mouse_left);
       for i := 0 to 30 do
       begin
         if not BankScreen then
