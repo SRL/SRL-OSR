@@ -216,7 +216,7 @@ Finds Pin Screen. Returns true if Found.
 .. note::
 
     Author: Naum
-    Last Modified: Unknown
+    Last Modified: 11-21-14 elfyyy
 
 Example:
 
@@ -227,8 +227,6 @@ Example:
 *)
 function PinScreen : Boolean;
 begin
-  if not BankScreen then
-    Exit;
   Result := FindTextTPA(2070783, 0, 105, 62, 150, 75, 'Please', upChars07, Nothing);
 end;
 
@@ -1260,7 +1258,7 @@ Closes the bank window - Tries twice before exiting
 .. note::
 
     Author: Starblaster100
-    Last Modified: elfyyy 10/11/2014
+    Last Modified: elfyyy 11-21-14
 
 Example:
 
