@@ -1725,7 +1725,232 @@ begin
   end;
 end;
 
-function getRunEnergy(): Integer; forward;
+(*
+MMLevels
+~~~~~~
+
+.. code-block:: pascal
+
+    function MMLevels(CheckWhich: String): Integer;
+
+Returns players current level given by 'CheckWhich'
+
+.. note::
+
+    by elfyyy & Flight
+
+Example:
+
+.. code-block:: pascal
+
+*)
+function MMLevels(CheckWhich: String): Integer;
+var
+  Box: TBox;
+  TPA: TPointArray;
+begin
+  case LowerCase(CheckWhich) of
+    'health', 'hp': Box := IntToBox(522, 56, 541, 69);
+    'prayer', 'pray' : Box := IntToBox(522, 100, 541, 112);
+    'run', 'energy': Box :=  IntToBox(546, 136, 566, 148);
+   end;
+
+   if (Box.X1 = 0) then
+   begin
+     srl_Warn('MMLevels', CheckWhich + ' Is not a valid Level to check', warn_Warning);
+     Exit;
+   end;
+   TPA := ReturnTPAExceptColors([4938344, 0], [20, 0], Box);
+   Result := strToIntDef(GetTextATPA(ClusterTPAEx(TPA,1,10), 5, 'StatChars07'), 0);
+end;
+
+(*
+IsUsingRun
+~~~~~~
+
+.. code-block:: pascal
+
+    function IsUsingRun: Boolean;
+
+Returns if player's run is set.
+
+.. note::
+
+    by Flight
+
+Example:
+
+.. code-block:: pascal
+
+*)
+function IsUsingRun: Boolean;
+var
+  tpa : TPointArray;
+begin
+  result := findColorsPie(TPA, 6806252, 20, 0, 360, 10, 72, 571, 127, 595, 152, 582, 140);
+end;
+
+(*
+IsUsingQP
+~~~~~~
+
+.. code-block:: pascal
+
+    function IsUsingQP: Boolean;
+
+Results if we're currently using quick-prayers
+
+.. note::
+
+    by Flight
+
+Example:
+
+.. code-block:: pascal
+
+*)
+function IsUsingQP: Boolean;
+begin
+  Result := (CountColorTolerance(14610138, 544, 90, 568, 114, 20) < 30);
+end;
+
+(*
+IsPoisoned
+~~~~~~
+
+.. code-block:: pascal
+
+    function IsPoisoned: Boolean;
+
+Returns if player is posioned or not.
+
+.. note::
+
+    by Flight
+
+Example:
+
+.. code-block:: pascal
+
+*)
+function IsPoisoned: Boolean;
+var
+  tpa : TPointArray;
+begin
+  result := findColorsPie(TPA, 88587, 30, 0, 360, 10, 72, 544, 46, 567, 69, 582, 140);
+end;
+
+(*
+getHealthPercent
+~~~~~~
+
+.. code-block:: pascal
+
+    function getHealthPercent: Integer;
+
+Returns players health percentage
+
+.. note::
+
+    by Flight
+
+Example:
+
+.. code-block:: pascal
+
+*)
+function getHealthPercent: Integer;
+var
+  tpa : TPointArray;
+begin
+  Result := 100;
+  findColorsPie(tpa, 1184274, 13, 0, 360, 0, 15, 541, 44, 571, 72, 556, 58);
+  if length(tpa) < 1 then Exit;
+  sortTPAByY(tpa, False);
+  result := (((70-tpa[0].y)*4)-2);
+  if result < 0 then result := 0;
+end;
+
+(*
+GetPrayerPercent
+~~~~~~
+
+.. code-block:: pascal
+
+    function GetPrayerPercent: Integer;
+
+Returns players prayer percentage
+
+.. note::
+
+    by Flight
+
+Example:
+
+.. code-block:: pascal
+
+*)
+function getPrayerPercent: Integer;
+var
+  l   : Integer;
+  tpa : TPointArray;
+begin
+  Result := 100;
+  findColorsPie(TPA, 1184274, 13, 0, 360, 0, 15, 541, 88, 571, 115, 556, 102);
+  l := (length(tpa)-10);
+  if l < 0 then l := 0;
+  result := round((100-(l/316)*100));
+end;
+
+(*
+ToggleMMOrb
+~~~~~~
+
+.. code-block:: pascal
+
+    function ToggleMMOrb(WhichORB: String; Enable: Boolean): Boolean;
+
+Enables or disables orb given by 'WhichOrb'
+
+.. note::
+
+    by elfyyy
+
+Example:
+
+.. code-block:: pascal
+
+*)
+function ToggleMMOrb(WhichORB: String; Enable: Boolean): Boolean;
+var
+  Box: TBox;
+begin
+  Result := True;
+  case LowerCase(WhichORB) of
+    'prayer', 'pray', 'qp' :
+    begin
+      Box := IntToBox(545, 90, 569, 112);
+      if (IsUsingQP) and (not Enable) then
+        MouseTBox(Box, MOUSE_LEFT);
+      if (not IsUsingQP) and (Enable) then
+        MouseTBox(Box, MOUSE_LEFT);
+      Exit;
+    end;
+
+    'run', 'energy':
+    begin
+      Box :=  IntToBox(569, 128, 594, 148);
+      if (IsUsingRun) and (not Enable) then
+        MouseTBox(Box, MOUSE_LEFT);
+      if (not IsUsingRun) and (Enable) then
+        MouseTBox(Box, MOUSE_LEFT);
+      Exit;
+    end;
+  end;
+
+  srl_Warn('ToggleMMOrb', WhichORB + ' Is not a valid Orb to check', warn_Warning);
+  Result := False;
+end;
 
 (*
 RunEnergy
@@ -1753,7 +1978,7 @@ var
   CR: Integer;
 begin
   Result := False;
-  CR := GetRunEnergy;
+  CR := MMLevels('run');
   if (CR>=Min) then
   begin
     if SetRun(True) then Result := True;
