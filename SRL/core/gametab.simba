@@ -1726,42 +1726,87 @@ begin
 end;
 
 (*
-MMLevels
-~~~~~~
+GetCurrentHealth
+~~~~~~~~~
 
 .. code-block:: pascal
 
-    function MMLevels(CheckWhich: String): Integer;
+    function GetCurrentHealth: Integer;
 
-Returns players current level given by 'CheckWhich'
+Returns players current health.
 
 .. note::
 
-    by elfyyy & Flight
+    by Flight
+    Last Modified:
 
 Example:
 
 .. code-block:: pascal
 
 *)
-function MMLevels(CheckWhich: String): Integer;
+function GetCurrentHealth: Integer;
 var
-  Box: TBox;
-  TPA: TPointArray;
+  tpa : TPointArray;
 begin
-  case LowerCase(CheckWhich) of
-    'health', 'hp': Box := IntToBox(522, 56, 541, 69);
-    'prayer', 'pray' : Box := IntToBox(522, 100, 541, 112);
-    'run', 'energy': Box :=  IntToBox(546, 136, 566, 148);
-   end;
+  tpa    := returnTPAExceptColors([4938344, 0], [20, 0], intToBox(522,56,541,69));
+  result := strToIntDef(getTextATPA(clusterTPAEx(tpa,1,10), 5, 'StatChars07'), 0);
+end;
 
-   if (Box.X1 = 0) then
-   begin
-     srl_Warn('MMLevels', CheckWhich + ' Is not a valid Level to check', warn_Warning);
-     Exit;
-   end;
-   TPA := ReturnTPAExceptColors([4938344, 0], [20, 0], Box);
-   Result := strToIntDef(GetTextATPA(ClusterTPAEx(TPA,1,10), 5, 'StatChars07'), 0);
+(*
+GetPrayerPoints
+~~~~~~~~~
+
+.. code-block:: pascal
+
+    function GetPrayerPoints: Integer;
+
+Returns players prayer points.
+
+.. note::
+
+    by Flight
+    Last Modified:
+
+Example:
+
+.. code-block:: pascal
+
+*)
+function GetPrayerPoints: Integer;
+var
+  tpa : TPointArray;
+begin
+  tpa    := returnTPAExceptColors([4938344, 0], [20, 0], intToBox(522,100,541,112));
+  result := strToIntDef(getTextATPA(clusterTPAEx(tpa,1,10), 5, 'StatChars07'), 0);
+end;
+
+(*
+GetRunEnergy
+~~~~~~~~~
+
+.. code-block:: pascal
+
+    function GetRunEnergy: Integer;
+
+Returns Players run energy.
+
+.. note::
+
+    by Flight
+    Last Modified:
+
+Example:
+
+.. code-block:: pascal
+
+*)
+function GetRunEnergy: Integer;
+var
+  tpa : TPointArray;
+begin
+  tpa    := returnTPAExceptColors([4938344, 0], [20, 0], intToBox(546,136,566,148));
+  result := strToIntDef(getTextATPA(clusterTPAEx(tpa,1,10), 5, 'StatChars07'), 0);
 end;
 
 (*
@@ -1952,6 +1997,16 @@ begin
   Result := False;
 end;
 
+function toggleDataOrbs(Enable: Boolean): Boolean;
+begin
+  Result := ToggleMMOrb('run', Enable);
+end;
+
+function SetOrbs(State: Boolean): Boolean;
+begin
+  Result := ToggleMMOrb('run', State);
+end;
+
 (*
 RunEnergy
 ~~~~~~~~~
@@ -1978,7 +2033,7 @@ var
   CR: Integer;
 begin
   Result := False;
-  CR := MMLevels('run');
+  CR := GetRunEnergy;
   if (CR>=Min) then
   begin
     if SetRun(True) then Result := True;
