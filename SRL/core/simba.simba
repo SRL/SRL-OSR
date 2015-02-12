@@ -161,10 +161,12 @@ type
   TDTMPointDefArray = TSDTMPointDefArray;
   TDTM = TSDTM;
 
+{$IFNDEF LAPE}
 function AddDTM(DTM : TDTM) : integer;
 begin
   Result := AddSDTM(dtm);
 end;
+{$ENDIF}
 
 {$ENDIF}
 
@@ -449,6 +451,7 @@ begin;
 end;
 
 {$IFNDEF SIMBAMAJOR1000}
+{$IFNDEF LAPE}
 function AddOnTerminate(const proc : string) : boolean;
 var
   OldProcs : TVariantArray;
@@ -483,6 +486,7 @@ begin
     end;
   SetScriptProp(SP_OnTerminate,NewProcs);
 end;
+{$ENDIF}
 {$ENDIF}
 
 function Readln(Question : string ) : string;

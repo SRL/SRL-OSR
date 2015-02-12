@@ -888,6 +888,7 @@ begin
 end;
 
 {$IFNDEF SIMBAMAJOR1000}
+{$IFNDEF LAPE}
 (*
 SortATPAFromFirstPointY
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -967,6 +968,7 @@ begin
 
   QuickATPASort(DistArr, a, 0, l, True);
 end;
+{$ENDIF}
 {$ENDIF}
 
 (*
