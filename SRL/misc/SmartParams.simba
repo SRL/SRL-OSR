@@ -137,10 +137,75 @@ begin
     end;
   end;
 end;
+//From SimbaEx
+Function getDirectoryName(Directory, Path: String): String;
+var
+  I: Integer;
+  Directories: TStringArray;
+Begin
+  Directories := GetDirectories(Path);
+  For I := 0 To High(Directories) Do
+    If ExecRegExpr(Directory, Directories[I]) Then
+    Begin
+      Result := Directories[I];
+      Exit;
+    End;
+End;
+//From SimbaEx
+Function findDirectory(Directory, Path: String): Boolean;
+Begin
+  Result := Length(GetDirectoryName(Directory, Path)) > 0;
+End;
+
+// by Brandon
+Function getJavaPath(Console: Boolean): String;
+var
+  Drive: String;
+  CurrentPath: String;
+Begin
+  Drive := Copy(PluginPath, 0, 3);
+
+  If (FindDirectory('Program\sFiles\s\(x86\)', Drive)) Then
+  Begin
+    CurrentPath := Drive + 'Program Files (x86)\';
+  End Else
+    CurrentPath := Drive + 'Program Files\';
+
+  If (FindDirectory('Java|java', CurrentPath + '\')) Then
+  Begin
+    CurrentPath := CurrentPath + 'Java\';
+  End Else
+    Begin
+      Writeln('Failed To Find Path: ' + CurrentPath + 'Java\');
+      Exit;
+    End;
+
+  Drive := GetDirectoryName('jre', CurrentPath);
+  If (Length(Drive) > 0) Then
+  Begin
+    If (Console) Then
+      CurrentPath := CurrentPath + Drive + '\bin\java.exe'
+    Else
+      CurrentPath := CurrentPath + Drive + '\bin\javaw.exe';
+  End Else
+    Begin
+      Drive := GetDirectoryName('jdk', CurrentPath);
+      If (Console) Then
+      CurrentPath := CurrentPath + Drive + 'jre\bin\java.exe'
+    Else
+      CurrentPath := CurrentPath + Drive + 'jre\bin\javaw.exe';
+    End;
+
+  If (FileExists(CurrentPath)) Then
+    Result := CurrentPath
+  Else
+    writeln('Failed To Find Java.exe or Javaw.exe. Please add ...\JRE\Bin to your PATH environment variable.');
+End;
 
 procedure initSmart(forceNewClient: boolean);
 var
   params: array [0..1] of string;
+  Path: string;
 begin
   if (not forceNewClient) then
   begin
@@ -153,12 +218,12 @@ begin
   end;
 
   writeln('Attempting to spawn a client');
-
+  Path := getJavaPath(False);
   params[0] := 'http://oldschool'+ getWorld() +'.runescape.com/';
   params[1] := 'j1';
 
   smartCurrentTarget := 0;
-  smartCurrentTarget := SmartSpawnClient('java.exe', replaceWrap(PluginPath, '\', '/', [rfReplaceAll]), params[0], params[1], 765, 503, '', '', '', '');
+  smartCurrentTarget := SmartSpawnClient(Path, replaceWrap(PluginPath, '\', '/', [rfReplaceAll]), params[0], params[1], 765, 503, '', '', '', '');
 
   if (smartCurrentTarget <> 0) then
   begin
@@ -190,5 +255,4 @@ begin
     writeln('Error freeing SMART[' + intToStr(smartCurrentPid) + ']');
   end;
 end;
-
 
